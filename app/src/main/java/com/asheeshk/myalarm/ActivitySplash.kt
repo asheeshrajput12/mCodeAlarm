@@ -1,8 +1,11 @@
 package com.asheeshk.myalarm
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.Window
+import android.view.WindowInsetsController
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -57,8 +60,7 @@ class ActivitySplash : ComponentActivity() {
         // Make the status and navigation bars fully transparent
         window.statusBarColor = Color.Transparent.toArgb()
         window.navigationBarColor = Color.Transparent.toArgb()
-
-      /*  WindowCompat.setDecorFitsSystemWindows(window, false)
+     /*  WindowCompat.setDecorFitsSystemWindows(window, false)
 
         // Control status and navigation bar appearance
         val insetsController = WindowCompat.getInsetsController(window, window.decorView)
@@ -72,6 +74,7 @@ class ActivitySplash : ComponentActivity() {
             }
         }
     }
+
 }
 @Preview
 @Composable
@@ -80,7 +83,7 @@ fun SplashScreen(onTimeout: () -> Unit) {
 
     // Launch delay effect to trigger navigation after 5 seconds
     LaunchedEffect(Unit) {
-        delay(5000) // 5-second delay
+        delay(1000) // 5-second delay
         isVisible = false // Trigger animation
         delay(300) // Small delay for animation to complete
         onTimeout() // Navigate to MainActivity
