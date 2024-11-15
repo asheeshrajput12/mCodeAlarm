@@ -20,6 +20,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,6 +49,7 @@ import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -252,6 +254,9 @@ fun RoundedCard(modifier: Modifier) {
     Card(
         modifier = modifier.padding(0.dp),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        )
     ) {
         ActivityRow()
         AlarmPlanList()
@@ -365,61 +370,6 @@ fun MetricCard(value: String, label: String, icon: Painter? = null, modifier: Mo
     }
 
 }
-
-@Composable
-fun ActivityCard(
-    icon: Int? = null,
-    value: String,
-    unit: String,
-    label: String,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .size(120.dp) // Adjust size as needed
-            .background(Color.White, shape = MaterialTheme.shapes.medium)
-            .padding(16.dp),
-        shadowElevation = 4.dp
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Icon(
-                painter = painterResource(id = icon!!),
-                contentDescription = null, // Orange color for the icon
-                modifier = Modifier.size(32.dp)
-            )
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = value,
-                    color = Color(0xFF1D1D1D), // Dark color for the value
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    text = unit,
-                    color = Color(0xFF1D1D1D),
-                    fontSize = 16.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
-
-            Text(
-                text = label,
-                color = Color(0xFF757575), // Gray color for the label
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
-
 @Composable
 fun ActivityCard(
     icon: Int? = null,
@@ -434,6 +384,7 @@ fun ActivityCard(
             disabledContentColor = Color.DarkGray,
             disabledContainerColor = Color.LightGray
         ),
+        border = BorderStroke(width = 1.dp, color = Color.Gray),
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .padding(8.dp)
@@ -479,21 +430,15 @@ fun ActivityCard(
 @Composable
 fun ActivityRow() {
     LazyRow(
-        modifier = Modifier.padding(start = 20.dp),
+        modifier = Modifier.padding(start = 0.dp, top = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(activities) { activity ->
-            /*ActivityCard(
-                icon = activity.icon,
-                time = activity.time,
-                activityName = activity.name,
-                iconColor = activity.iconColor
-            )*/
             ActivityCard(
                 icon = activity.icon, // Replace with your actual icon
                 value = activity.time,
-                unit = "min",
-                activityName = "Skipping"
+                unit = activity.unit,
+                activityName = activity.name
             )
         }
     }
@@ -510,28 +455,28 @@ data class Activity(
 
 val activities = listOf(
     Activity(
-        icon = R.drawable.ic_fire, // Replace with skipping icon
+        icon = R.drawable.ic_skipping, // Replace with skipping icon
         time = "34",
         name = "Skipping",
         unit = "min",
         iconColor = Color(0xFFFF9800) // Orange color
     ),
     Activity(
-        icon = R.drawable.ic_fire, // Replace with cycling icon
+        icon = R.drawable.ic_exercise, // Replace with cycling icon
         time = "30",
         name = "Cycling",
         unit = "min",
         iconColor = Color(0xFF9C27B0) // Purple color
     ),
     Activity(
-        icon = R.drawable.ic_fire, // Replace with meditation icon
+        icon = R.drawable.ic_yoga, // Replace with meditation icon
         time = "15",
         name = "Meditation",
         unit = "min",
         iconColor = Color(0xFF4CAF50) // Green color
     ),
     Activity(
-        icon = R.drawable.ic_fire, // Replace with meditation icon
+        icon = R.drawable.ic_skipping, // Replace with meditation icon
         time = "45",
         name = "Walking",
         unit = "min",
@@ -551,11 +496,11 @@ fun AlarmPlanList() {
             color = Color.Black,
             fontSize = 24.sp,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp),
+                .fillMaxWidth(),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Start
         )
+        Spacer(modifier = Modifier.height(20.dp))
 
         // LazyColumn for vertical scrolling
         LazyColumn(

@@ -30,14 +30,14 @@ class ActivityTabView : ComponentActivity() {
             MyAlarmTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // Call the custom tab layout function
-                    CustomTabLayoutWithViewPager(Modifier.padding(innerPadding))
+                   // CustomTabLayoutWithViewPager(Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+/*@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CustomTabLayoutWithViewPager(modifier: Modifier = Modifier) {
     val tabs = listOf("Home", "Profile", "Settings")
@@ -100,7 +100,7 @@ fun CustomTabLayoutWithViewPager(modifier: Modifier = Modifier) {
             }
         }
     }
-}
+}*/
 
 @Composable
 fun CustomTabContent(content: String) {
