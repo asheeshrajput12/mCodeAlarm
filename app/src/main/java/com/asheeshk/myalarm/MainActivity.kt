@@ -8,6 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import com.asheeshk.myalarm.ui.theme.MyAlarmTheme
 import android.content.Intent
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -54,6 +55,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ShapeDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -72,6 +74,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -235,9 +238,11 @@ fun DashboardScreen(
                 heartRate = heartRate
             )
             Spacer(modifier = Modifier.height(24.dp))
-            RoundedCard(modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight())
+            RoundedCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            )
         }
     }
 }
@@ -245,7 +250,7 @@ fun DashboardScreen(
 @Composable
 fun RoundedCard(modifier: Modifier) {
     Card(
-        modifier = modifier.padding(2.dp),
+        modifier = modifier.padding(0.dp),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
     ) {
         ActivityRow()
@@ -292,14 +297,14 @@ fun MetricsSection(steps: Int, calories: Int, coins: Double, distance: Double, h
             MetricCard(
                 value = steps.toString(),
                 label = "Steps",
-                icon = "🚶",
+                icon = painterResource(id = R.drawable.ic_steps),
                 modifier = Modifier.weight(1f) // Each card takes equal width
             )
             Spacer(modifier = Modifier.padding(start = 20.dp))
             MetricCard(
                 value = calories.toString(),
                 label = "Calories",
-                icon = "🔥",
+                icon = painterResource(id = R.drawable.ic_fire),
                 modifier = Modifier.weight(1f)
             )
         }
@@ -323,7 +328,7 @@ fun MetricsSection(steps: Int, calories: Int, coins: Double, distance: Double, h
 }
 
 @Composable
-fun MetricCard(value: String, label: String, icon: String? = null, modifier: Modifier = Modifier) {
+fun MetricCard(value: String, label: String, icon: Painter? = null, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .background(Color(0x40000000), shape = MaterialTheme.shapes.large)
@@ -337,26 +342,98 @@ fun MetricCard(value: String, label: String, icon: String? = null, modifier: Mod
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
-        Text(
-            text = label,
-            color = Color.White,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (icon != null) {
+                Icon(
+                    painter = icon,
+                    contentDescription = null, // Optional: describe the icon for accessibility
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp) // Set the size of the icon as needed
+                )
+                Spacer(modifier = Modifier.width(4.dp)) // Add spacing between icon and text
+            }
+            Text(
+                text = label,
+                color = Color.White,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+
     }
 
 }
 
 @Composable
 fun ActivityCard(
-    icon: ImageVector,
-    time: String,
+    icon: Int? = null,
+    value: String,
+    unit: String,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .size(120.dp) // Adjust size as needed
+            .background(Color.White, shape = MaterialTheme.shapes.medium)
+            .padding(16.dp),
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Icon(
+                painter = painterResource(id = icon!!),
+                contentDescription = null, // Orange color for the icon
+                modifier = Modifier.size(32.dp)
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = value,
+                    color = Color(0xFF1D1D1D), // Dark color for the value
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = unit,
+                    color = Color(0xFF1D1D1D),
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Text(
+                text = label,
+                color = Color(0xFF757575), // Gray color for the label
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun ActivityCard(
+    icon: Int? = null,
+    value: String,
+    unit: String,
     activityName: String,
-    iconColor: Color,
-    backgroundColor: Color = Color.Green
 ) {
     Card(
-        colors = CardColors(containerColor = Color.White, contentColor = Color.Transparent, disabledContentColor = Color.DarkGray, disabledContainerColor = Color.LightGray),
+        colors = CardColors(
+            containerColor = Color.White,
+            contentColor = Color.Transparent,
+            disabledContentColor = Color.DarkGray,
+            disabledContainerColor = Color.LightGray
+        ),
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .padding(8.dp)
@@ -367,17 +444,28 @@ fun ActivityCard(
             modifier = Modifier.padding(16.dp)
         ) {
             Icon(
-                imageVector = icon,
+                painter = painterResource(id = icon!!),
                 contentDescription = null,
-                tint = iconColor,
+                tint = Color.Unspecified,
                 modifier = Modifier.size(32.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = time,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
+            Row {
+                Text(
+                    text = value,
+                    color = Color(0xFF1A1A1A), // Dark color for the number
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.width(4.dp)) // Space between the value and unit
+                Text(
+                    text = unit,
+                    color = Color(0xFF9E9E9E), // Light gray color for the unit
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    modifier = Modifier.align(Alignment.Bottom)
+                )
+            }
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = activityName,
@@ -391,15 +479,21 @@ fun ActivityCard(
 @Composable
 fun ActivityRow() {
     LazyRow(
-        modifier = Modifier.padding(20.dp),
+        modifier = Modifier.padding(start = 20.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(activities) { activity ->
-            ActivityCard(
+            /*ActivityCard(
                 icon = activity.icon,
                 time = activity.time,
                 activityName = activity.name,
                 iconColor = activity.iconColor
+            )*/
+            ActivityCard(
+                icon = activity.icon, // Replace with your actual icon
+                value = activity.time,
+                unit = "min",
+                activityName = "Skipping"
             )
         }
     }
@@ -407,32 +501,44 @@ fun ActivityRow() {
 
 // Sample data class and list of activities
 data class Activity(
-    val icon: ImageVector,
+    val icon: Int? = null,
     val time: String,
+    val unit: String,
     val name: String,
     val iconColor: Color
 )
 
 val activities = listOf(
     Activity(
-        icon = Icons.Default.Favorite, // Replace with skipping icon
-        time = "34 min",
+        icon = R.drawable.ic_fire, // Replace with skipping icon
+        time = "34",
         name = "Skipping",
+        unit = "min",
         iconColor = Color(0xFFFF9800) // Orange color
     ),
     Activity(
-        icon = Icons.Default.CheckCircle, // Replace with cycling icon
-        time = "30 min",
+        icon = R.drawable.ic_fire, // Replace with cycling icon
+        time = "30",
         name = "Cycling",
+        unit = "min",
         iconColor = Color(0xFF9C27B0) // Purple color
     ),
     Activity(
-        icon = Icons.Default.Send, // Replace with meditation icon
-        time = "15 min",
+        icon = R.drawable.ic_fire, // Replace with meditation icon
+        time = "15",
         name = "Meditation",
+        unit = "min",
+        iconColor = Color(0xFF4CAF50) // Green color
+    ),
+    Activity(
+        icon = R.drawable.ic_fire, // Replace with meditation icon
+        time = "45",
+        name = "Walking",
+        unit = "min",
         iconColor = Color(0xFF4CAF50) // Green color
     )
 )
+
 @Composable
 fun AlarmPlanList() {
     Column(
@@ -440,23 +546,41 @@ fun AlarmPlanList() {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(text = "My Alarm Plans",
+        Text(
+            text = "My Alarm Plans",
             color = Color.Black,
             fontSize = 24.sp,
-            modifier=Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 20.dp, end = 20.dp),
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Start)
+            textAlign = TextAlign.Start
+        )
 
         // LazyColumn for vertical scrolling
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp) // Space between items
         ) {
-            items(listOf(
-                Alarm("05:00 AM", "Jogging for 30 mins", Icons.Default.Face, Color(0xFF7B61FF), true),
-                Alarm("05:30 AM", "Skipping for 30 mins", Icons.Default.Lock, Color(0xFFFF7B61), true),
-                // Add more alarms as needed
-            )) { alarm ->
+            items(
+                listOf(
+                    Alarm(
+                        "05:00 AM",
+                        "Jogging for 30 mins",
+                        Icons.Default.Face,
+                        Color(0xFF7B61FF),
+                        true
+                    ),
+                    Alarm(
+                        "05:30 AM",
+                        "Skipping for 30 mins",
+                        Icons.Default.Lock,
+                        Color(0xFFFF7B61),
+                        true
+                    ),
+                    // Add more alarms as needed
+                )
+            ) { alarm ->
                 AlarmItem(
                     time = alarm.time,
                     activity = alarm.activity,
@@ -547,6 +671,7 @@ data class Alarm(
     val iconTint: Color,
     val isChecked: Boolean
 )
+
 
 
 
