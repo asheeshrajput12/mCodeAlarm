@@ -1,9 +1,7 @@
 package com.asheeshk.myalarm
 
-import android.app.Activity
-import android.content.Context
+
 import android.content.Intent
-import android.graphics.drawable.PaintDrawable
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -16,31 +14,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Brush.Companion.linearGradient
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -48,8 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
-import com.asheeshk.myalarm.ui.theme.MyAlarmTheme
 import com.asheeshk.myalarm.ui.theme.Purple80
 import kotlinx.coroutines.launch
 
@@ -136,7 +118,7 @@ fun TabsView() {
                 val addIcon = painterResource(id = R.drawable.ic_add_square) // Replace with your actual drawable resource
                 FloatingActionButton(
                     onClick = {
-                        val intent = Intent(context, MainActivity::class.java)
+                        val intent = Intent(context, ActivityAddTask::class.java)
                         context.startActivity(intent)
                               },
                     modifier = Modifier
