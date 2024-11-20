@@ -31,9 +31,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.asheeshk.myalarm.ui.theme.MyAlarmTheme
 
 class ActivityAddTask : ComponentActivity() {
@@ -75,25 +80,29 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
         modifier = Modifier
             .fillMaxSize()
             .padding(top = 40.dp, start = 16.dp, end = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Top Action Row
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = { /* Handle close action */ },
-                modifier = Modifier.wrapContentWidth().wrapContentHeight()) {
+                modifier = Modifier.size(60.dp)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_rounded_back), // Replace with your close icon
                     contentDescription = "Close"
                 )
             }
-            IconButton(onClick = { /* Handle save action */ }) {
+            IconButton(onClick = { /* Handle save action */ },
+                modifier = Modifier.size(60.dp)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_square_check), // Replace with your check icon
-                    contentDescription = "Save"
+                    contentDescription = "Save",
+                    tint = Color.Blue
+
                 )
             }
         }
@@ -101,18 +110,22 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
         // Welcome Text
         Text(
             text = "Welcome $userName,",
-            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.fillMaxWidth(),
+            fontSize = 16.sp,
+            textAlign = TextAlign.Start,
             color = Color(0xFF6A1B9A) // Purple color
         )
 
         Text(
             text = "what time do you want to exercise?",
-            style = MaterialTheme.typography.displaySmall
+            modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            fontSize = 24.sp,
+            textAlign = TextAlign.Start
         )
 
         // Time Picker
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().height(110.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
@@ -133,7 +146,9 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
             Text(
                 text = "Repeat",
                 style = MaterialTheme.typography.bodyLarge,
-                color = Color.Gray
+                fontSize = 16.sp,
+                textAlign = TextAlign.Start,
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(8.dp))
             Row(
@@ -146,11 +161,10 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
                         modifier = Modifier
                             .size(48.dp)
                             .background(
-                                color = if (day == "Tue" || day == "Thu" || day == "Sat") Color(
-                                    0xFFF8BBD0
-                                ) else Color.LightGray,
-                                shape = CircleShape
+                                color = Color.White,
+                                shape = RectangleShape
                             ),
+
                         contentAlignment = Alignment.Center
                     ) {
                         Text(text = day, style = MaterialTheme.typography.bodyMedium)
@@ -197,6 +211,8 @@ fun SettingItem(title: String, value: String) {
         Text(
             text = title,
             style = MaterialTheme.typography.displaySmall,
+            fontSize = 13.sp,
+            fontFamily = FontFamily.Default,
             color = Color.Gray
         )
         Spacer(modifier = Modifier.height(4.dp))
@@ -207,12 +223,13 @@ fun SettingItem(title: String, value: String) {
         ) {
             Text(
                 text = value,
-                style = MaterialTheme.typography.headlineSmall,
+                fontSize = 16.sp,
+                style = MaterialTheme.typography.labelLarge,
                 color = Color.Black
             )
             IconButton(onClick = { /* Handle click */ }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_add_square), // Replace with your arrow icon
+                    painter = painterResource(id = R.drawable.ic_arrow_square_right), // Replace with your arrow icon
                     contentDescription = null
                 )
             }

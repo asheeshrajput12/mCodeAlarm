@@ -74,9 +74,16 @@ fun TabsView() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(72.dp) // Bottom Bar height
-                    .background(Color.White) // Bottom Bar background color
+                    .height(72.dp)
+                    .background(Color.Gray)// Bottom Bar height
+            // Bottom Bar background color
             ) {
+                Image(
+                    painter = painterResource(id = R.drawable.tab_background), // Replace with your drawable resource
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                )
                 // Left Tabs (Home and Shop)
                 Row(
                     modifier = Modifier
