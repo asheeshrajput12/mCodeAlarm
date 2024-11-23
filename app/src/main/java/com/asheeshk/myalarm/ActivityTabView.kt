@@ -40,7 +40,7 @@ class ActivityTabView : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge() // Assuming this method is defined elsewhere in your project
         setContent {
-            window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+          //  window?.decorView?.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             TabsView()
             window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_FULLSCREEN or            // Hide status bar
@@ -81,15 +81,15 @@ fun TabsView() {
                 Image(
                     painter = painterResource(id = R.drawable.tab_background), // Replace with your drawable resource
                     contentDescription = null,
-                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxWidth().wrapContentHeight()
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight()
                 )
                 // Left Tabs (Home and Shop)
                 Row(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
                         .fillMaxWidth(0.5f) // Ensure equal width for left and right sections
-                        .padding(start = 16.dp)
+                        .padding(start = 0.dp)
                 ) {
                     NavigationBarItem(
                         selected = pagerState.currentPage == 0,
@@ -130,7 +130,7 @@ fun TabsView() {
                               },
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .offset(y = (-45).dp) // Push FAB above the curve
+                        .offset(y = (-30).dp) // Push FAB above the curve
                         .clip(CircleShape) // Make FAB fully rounded
                         .background(Color.Transparent, shape = CircleShape)  // Transparent background (gradient applied to icon)
                         .shadow(20.dp, CircleShape) // FAB shadow for elevation
