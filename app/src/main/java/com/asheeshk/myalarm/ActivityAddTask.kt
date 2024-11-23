@@ -1,5 +1,6 @@
 package com.asheeshk.myalarm
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.activity.ComponentActivity
@@ -23,13 +24,17 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,7 +45,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.asheeshk.myalarm.ui.theme.MyAlarmTheme
 import com.asheeshk.myalarm.ui.theme.Pink10
+import com.asheeshk.myalarm.ui.theme.Pink80
 
 class ActivityAddTask : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,6 +69,7 @@ class ActivityAddTask : ComponentActivity() {
                     )
             MyAlarmTheme {
                 ExerciseAlarmScreen()
+                ShowBottomSheetModal()
             }
         }
     }
@@ -84,6 +93,7 @@ fun GreetingPreview() {
 @Preview(showBackground = true)
 @Composable
 fun ExerciseAlarmScreen(userName: String = "Akshay") {
+    val activity = LocalContext.current as ActivityAddTask
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -97,14 +107,18 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
                 .wrapContentHeight(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = { /* Handle close action */ },
+            IconButton(onClick = { /* Handle close action */
+                activity.finish()
+
+            },
                 modifier = Modifier.size(60.dp)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_rounded_back), // Replace with your close icon
                     contentDescription = "Close"
                 )
             }
-            IconButton(onClick = { /* Handle save action */ },
+            IconButton(onClick = { /* Handle save action */
+                activity.finish()},
                 modifier = Modifier.size(60.dp)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_square_check), // Replace with your check icon
@@ -165,30 +179,6 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
             Spacer(modifier = Modifier.height(8.dp))
             val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
             HorizontalSelectableDaysList(days = days)
-           /* Row(
-                horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                days.forEach { day ->
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = Color.White,
-                            )
-                            .border(
-                                width = 0.5.dp, // Stroke width
-                                color = Color.Black, // Stroke color
-                                shape = RoundedCornerShape(5.dp) // Shape of the border
-                            ),
-
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = day, style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(top = 10.dp, start = 5.dp, end = 5.dp, bottom = 10.dp))
-                    }
-                }
-            }*/
         }
 
         // Mission Section
@@ -257,8 +247,8 @@ fun SettingItem(title: String, value: String) {
 
 @Composable
 fun HorizontalSelectableDaysList(days: List<String>) {
-    // State to track the selected day
-    var selectedDay by remember { mutableStateOf<String?>(null) }
+    // State to track the selected days
+    var selectedDays by remember { mutableStateOf<Set<String>>(emptySet()) }
 
     Row(
         modifier = Modifier.fillMaxWidth(), // Ensures the row spans the full width
@@ -269,15 +259,19 @@ fun HorizontalSelectableDaysList(days: List<String>) {
                 modifier = Modifier
                     .padding()
                     .clickable {
-                        selectedDay = day // Update the selected day
+                        selectedDays = if (selectedDays.contains(day)) {
+                            selectedDays - day // Deselect if already selected
+                        } else {
+                            selectedDays + day // Add to selected set if not selected
+                        }
                     }
                     .background(
-                        color = if (selectedDay == day) Pink10 else Color.White,
+                        color = if (selectedDays.contains(day)) Pink10 else Color.White,
                         shape = RoundedCornerShape(15.dp)
                     )
                     .border(
                         width = 1.dp,
-                        color = if (selectedDay == day) Color.Blue else Color.Black,
+                        color = if (selectedDays.contains(day)) Pink80 else Color.Black,
                         shape = RoundedCornerShape(15.dp)
                     )
                     .padding(horizontal = 6.dp, vertical = 8.dp), // Inner padding for the Box
@@ -286,11 +280,76 @@ fun HorizontalSelectableDaysList(days: List<String>) {
                 Text(
                     text = day,
                     style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = 20.dp, start = 5.dp, end = 5.dp, bottom = 20.dp)
+                    modifier = Modifier.padding(
+                        top = 20.dp,
+                        start = 5.dp,
+                        end = 5.dp,
+                        bottom = 20.dp
+                    )
                 )
             }
         }
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowBottomSheetModal() {
+    // State to control showing the bottom sheet
+    var showBottomSheet by remember { mutableStateOf(false) }
+    var selectedItem by remember { mutableStateOf<String?>(null) }
+
+    // Button to open bottom sheet
+    Button(onClick = { showBottomSheet = true }) {
+        Text(text = "Open Bottom Sheet")
+    }
+
+    // Display selected item
+    selectedItem?.let {
+        Text(text = "Selected: $it", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 16.dp))
+    }
+
+    // Bottom Sheet
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false }, // Dismiss on outside tap
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
+            BottomSheetContent(
+                items = listOf("Option 1", "Option 2", "Option 3", "Option 4"),
+                onItemSelected = { item ->
+                    selectedItem = item // Pass result back to parent
+                    showBottomSheet = false // Close the bottom sheet
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun BottomSheetContent(items: List<String>, onItemSelected: (String) -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(
+            text = "Select an Option",
+            style = TextStyle(fontSize = 20.sp, color = Color.Black),
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+
+        items.forEach { item ->
+            Text(
+                text = item,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onItemSelected(item) } // Call the callback with the selected item
+                    .padding(vertical = 12.dp)
+            )
+        }
+    }
+}
+
 
 
