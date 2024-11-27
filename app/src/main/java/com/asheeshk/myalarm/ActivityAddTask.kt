@@ -34,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -235,12 +236,13 @@ fun SettingItem(title: String, value: String) {
                 style = MaterialTheme.typography.labelLarge,
                 color = Color.Black
             )
-            IconButton(onClick = { /* Handle click */ }) {
+            BottomSheetExample()
+           /* IconButton(onClick = { *//* Handle click *//* }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_square_right), // Replace with your arrow icon
                     contentDescription = null
                 )
-            }
+            }*/
         }
     }
 }
@@ -347,6 +349,70 @@ fun BottomSheetContent(items: List<String>, onItemSelected: (String) -> Unit) {
                     .clickable { onItemSelected(item) } // Call the callback with the selected item
                     .padding(vertical = 12.dp)
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BottomSheetExample() {
+    // State for managing the bottom sheet
+    var isBottomSheetOpen by remember { mutableStateOf(false) }
+    var selectedItem by remember { mutableStateOf("") }
+
+    // List of items to show in the bottom sheet
+    val items = listOf("Option 1", "Option 2", "Option 3")
+
+    // Main content
+    Scaffold { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(onClick = { isBottomSheetOpen = true }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_arrow_square_right),
+                    contentDescription = "Open Bottom Sheet"
+                )
+            }
+
+            // Show the selected item
+            if (selectedItem.isNotEmpty()) {
+                Text(
+                    text = "Selected: $selectedItem",
+                    modifier = Modifier.padding(top = 16.dp)
+                )
+            }
+        }
+    }
+
+    // Bottom Sheet Content
+    if (isBottomSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { isBottomSheetOpen = false }
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Select an Item",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                // Display items
+                items.forEach { item ->
+                    TextButton(
+                        onClick = {
+                            selectedItem = item
+                            isBottomSheetOpen = false
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = item)
+                    }
+                }
+            }
         }
     }
 }
