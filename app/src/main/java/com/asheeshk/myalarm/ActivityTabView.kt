@@ -75,7 +75,8 @@ fun TabsView() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(72.dp)
-                    .background(Color.Gray)// Bottom Bar height
+                    .background(Color.White)
+            // Bottom Bar height
             // Bottom Bar background color
             ) {
                 Image(
@@ -83,6 +84,7 @@ fun TabsView() {
                     contentDescription = null,
                     contentScale = ContentScale.FillWidth,
                     modifier = Modifier.fillMaxWidth().fillMaxHeight()
+
                 )
                 // Left Tabs (Home and Shop)
                 Row(
