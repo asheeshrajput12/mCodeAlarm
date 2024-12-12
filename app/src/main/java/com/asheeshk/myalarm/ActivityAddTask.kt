@@ -3,6 +3,7 @@ package com.asheeshk.myalarm
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,22 +15,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +41,8 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -48,14 +52,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.fontResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -77,7 +83,7 @@ class ActivityAddTask : ComponentActivity() {
                     )
             MyAlarmTheme {
                 ExerciseAlarmScreen()
-                ShowBottomSheetModal()
+                //ShowBottomSheetModal()
             }
         }
     }
@@ -98,13 +104,16 @@ fun GreetingPreview() {
         Greeting("Android")
     }
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
 fun ExerciseAlarmScreen(userName: String = "Akshay") {
     val activity = LocalContext.current as ActivityAddTask
+    val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(scrollState) // Enable scrolling
             .padding(top = 40.dp, start = 16.dp, end = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -193,13 +202,49 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
         SettingItem(title = "Mission", value = "Push-up")
 
         // Alarm Name Section
-        SettingItem(title = "Alarm name", value = "Need to go gym for exercise")
+        Column {
+            Text(text = "Alarm Name",
+                style = MaterialTheme.typography.displaySmall,
+                fontSize = 13.sp,
+                fontFamily = FontFamily.Default,
+                color = Color.Gray,
+                modifier = Modifier.wrapContentWidth(),
+                textAlign = TextAlign.Start)
+            var text by remember { mutableStateOf("Hi Arjun") } // State to manage text input
 
+            TextField(
+                value = text,
+                onValueChange = { text = it }, // Update the state with input value
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White), // Make TextField fill available width
+                singleLine = true, // Restrict input to a single line
+                colors = TextFieldDefaults.colors(
+                    // Set the background color to white
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    disabledContainerColor = Color.White,
+                    focusedIndicatorColor = Color.Transparent, // Optional: remove underline on focus
+                    unfocusedIndicatorColor = Color.Transparent // Optional: remove underline when not focused
+                ),
+                textStyle = TextStyle(
+                    fontSize = 16.sp, // Set the text size
+                    color = Color.Black, // Set the text color
+                    fontFamily = FontFamily.SansSerif, // Set the font family (optional)
+                    fontWeight = FontWeight.W500 // Set the font weight (optional)
+                )
+            )
+        }
+        HorizontalDivider(
+            color = Color.Gray, // Set the color of the line
+            thickness = 1.dp, // Set the height of the line
+            modifier = Modifier.fillMaxWidth() // Make it span the full width
+        )
         // Alarm Sound Section
         SettingItem(title = "Alarm Sound", value = "Fast and Furious.mp3")
 
         // Alarm Volume Section
-        Column(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth().padding(0.dp,0.dp,0.dp,50.dp)) {
             Text(
                 text = "Alarm Volume",
                 style = MaterialTheme.typography.displaySmall,
@@ -216,9 +261,9 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
                 )
             )
         }
+
     }
 }
-
 @Composable
 fun SettingItem(title: String, value: String) {
     Column(modifier = Modifier
@@ -231,26 +276,12 @@ fun SettingItem(title: String, value: String) {
             fontFamily = FontFamily.Default,
             color = Color.Gray
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = value,
-                fontSize = 16.sp,
-                style = MaterialTheme.typography.labelLarge,
-                color = Color.Black
-            )
-            BottomSheetExample()
-           /* IconButton(onClick = { *//* Handle click *//* }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_square_right), // Replace with your arrow icon
-                    contentDescription = null
-                )
-            }*/
-        }
+        ShowBottomSheetModal()
+        HorizontalDivider(
+            color = Color.Gray, // Set the color of the line
+            thickness = 1.dp, // Set the height of the line
+            modifier = Modifier.fillMaxWidth() // Make it span the full width
+        )
     }
 }
 
@@ -300,22 +331,35 @@ fun HorizontalSelectableDaysList(days: List<String>) {
         }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowBottomSheetModal() {
+    // Remember bottom sheet state
     // State to control showing the bottom sheet
     var showBottomSheet by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf<String?>(null) }
+    var selectedItem by remember { mutableStateOf<String?>("Push Up") }
 
-    // Button to open bottom sheet
-    Button(onClick = { showBottomSheet = true }) {
-        Text(text = "Open Bottom Sheet")
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = selectedItem.toString(),
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.Black
+        )
+        // Button to open bottom sheet
+        IconButton(onClick = { showBottomSheet=true }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_square_right), // Replace with your arrow icon
+                contentDescription = null
+            )
+        }
     }
 
-    // Display selected item
-    selectedItem?.let {
-        Text(text = "Selected: $it", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(top = 16.dp))
-    }
 
     // Bottom Sheet
     if (showBottomSheet) {
@@ -324,9 +368,9 @@ fun ShowBottomSheetModal() {
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
             BottomSheetContent(
-                items = listOf("Option 1", "Option 2", "Option 3", "Option 4"),
+                items = listOf("Push Up", "Stretching", "Pulling","Dumble","Jumping","Running","Tradil"),
                 onItemSelected = { item ->
-                    selectedItem = item // Pass result back to parent
+                    selectedItem=item // Pass result back to parent
                     showBottomSheet = false // Close the bottom sheet
                 }
             )
@@ -359,7 +403,6 @@ fun BottomSheetContent(items: List<String>, onItemSelected: (String) -> Unit) {
         }
     }
 }
-@Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetExample() {
@@ -374,14 +417,21 @@ fun BottomSheetExample() {
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
-                .fillMaxWidth().wrapContentHeight()
+                .fillMaxWidth()
+                .wrapContentHeight()
                 .padding(paddingValues)
         ) {
             IconButton(onClick = { isBottomSheetOpen = true }
-            , modifier = Modifier.fillMaxWidth().wrapContentHeight().align(Alignment.TopEnd)) {
+            , modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .align(Alignment.TopEnd)) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_square_right),
-                    contentDescription = "Open Bottom Sheet"
+                    contentDescription = "Open Bottom Sheet",
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .wrapContentHeight()
                 )
             }
 
