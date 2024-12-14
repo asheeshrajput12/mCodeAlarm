@@ -1,6 +1,8 @@
 package com.asheeshk.myalarm
 
 import android.content.Context
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
@@ -25,6 +27,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -46,6 +50,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -62,6 +67,7 @@ import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -70,6 +76,7 @@ import com.asheeshk.myalarm.ui.theme.MyAlarmTheme
 import com.asheeshk.myalarm.ui.theme.Pink10
 import com.asheeshk.myalarm.ui.theme.Pink80
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class ActivityAddTask : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -240,20 +247,27 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
             thickness = 1.dp, // Set the height of the line
             modifier = Modifier.fillMaxWidth() // Make it span the full width
         )
+        ShowAlarmRingtoneBottomSheet()
         // Alarm Sound Section
         SettingItem(title = "Alarm Sound", value = "Fast and Furious.mp3")
 
         // Alarm Volume Section
-        Column(modifier = Modifier.fillMaxWidth().padding(0.dp,0.dp,0.dp,50.dp)) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // Spacer(modifier = Modifier.height(8.dp))
+            var sliderValue by remember { mutableFloatStateOf(0.5f) }
             Text(
-                text = "Alarm Volume",
-                style = MaterialTheme.typography.displaySmall,
+                text = "Alarm Volume  (${(sliderValue*100).toInt()} %)",
+                fontWeight = FontWeight(500),
+                fontFamily = FontFamily.SansSerif,
+                style = MaterialTheme.typography.titleSmall,
                 color = Color.Gray
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
             Slider(
-                value = 0.5f, // Replace with volume state
-                onValueChange = { /* Update volume */ },
+                value = sliderValue, // Replace with volume state
+                onValueChange = { /* Update volume */
+                        newValue ->
+                    sliderValue = newValue},
                 modifier = Modifier.fillMaxWidth(),
                 colors = SliderDefaults.colors(
                     thumbColor = Color(0xFF6A1B9A),
@@ -262,6 +276,80 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
             )
         }
 
+    }
+}
+fun getAlarmRingtones(context: Context): List<Pair<String, Uri>> {
+    val ringtoneManager = RingtoneManager(context)
+    ringtoneManager.setType(RingtoneManager.TYPE_ALARM)
+    val cursor = ringtoneManager.getCursor()
+
+    val ringtones = mutableListOf<Pair<String, Uri>>()
+    while (cursor.moveToNext()) {
+        val title = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+        val uri = Uri.parse(cursor.getString(RingtoneManager.URI_COLUMN_INDEX))
+        ringtones.add(Pair(title, uri))
+    }
+
+    cursor.close()
+    return ringtones
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowAlarmRingtoneBottomSheet(
+) {
+    val context= LocalContext.current
+    var showBottomSheet by remember { mutableStateOf(false) }
+    val alarmRingtones = remember { getAlarmRingtones(context) }
+    var selectItem= remember { mutableStateOf("Fast and Furious.mp3") }
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = selectItem.toString(),
+            fontSize = 16.sp,
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.Black
+        )
+        // Button to open bottom sheet
+        IconButton(onClick = { showBottomSheet=true }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_arrow_square_right), // Replace with your arrow icon
+                contentDescription = null
+            )
+        }
+    }
+
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showBottomSheet = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
+            LazyColumn {
+                items(alarmRingtones) { ringtone ->
+                    Text(
+                        text = ringtone.first,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                // Play ringtone
+                                val ringtoneManager = RingtoneManager(context)
+                                ringtoneManager.setType(RingtoneManager.TYPE_ALARM)
+                                val ringtone =
+                                    ringtoneManager.getRingtone(alarmRingtones.indexOf(ringtone))
+                                ringtone.play()
+                                // Return selected item
+                                // selectItem = ringtone.getTitle(context)
+                              //  onRingtoneSelected(alarmRingtones.indexOf(ringtone), ringtone.first)
+                                showBottomSheet = false
+                            }
+                            .padding(16.dp)
+                    )
+                }
+            }
+        }
     }
 }
 @Composable
@@ -400,76 +488,6 @@ fun BottomSheetContent(items: List<String>, onItemSelected: (String) -> Unit) {
                     .clickable { onItemSelected(item) } // Call the callback with the selected item
                     .padding(vertical = 12.dp)
             )
-        }
-    }
-}
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BottomSheetExample() {
-    // State for managing the bottom sheet
-    var isBottomSheetOpen by remember { mutableStateOf(false) }
-    var selectedItem by remember { mutableStateOf("") }
-
-    // List of items to show in the bottom sheet
-    val items = listOf("Option 1", "Option 2", "Option 3")
-
-    // Main content
-    Scaffold { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(paddingValues)
-        ) {
-            IconButton(onClick = { isBottomSheetOpen = true }
-            , modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .align(Alignment.TopEnd)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_square_right),
-                    contentDescription = "Open Bottom Sheet",
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .wrapContentHeight()
-                )
-            }
-
-            // Show the selected item
-            if (selectedItem.isNotEmpty()) {
-                Text(
-                    text = "Selected: $selectedItem",
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            }
-        }
-    }
-
-    // Bottom Sheet Content
-    if (isBottomSheetOpen) {
-        ModalBottomSheet(
-            onDismissRequest = { isBottomSheetOpen = false }
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "Select an Item",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                // Display items
-                items.forEach { item ->
-                    TextButton(
-                        onClick = {
-                            selectedItem = item
-                            isBottomSheetOpen = false
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(text = item)
-                    }
-                }
-            }
         }
     }
 }
