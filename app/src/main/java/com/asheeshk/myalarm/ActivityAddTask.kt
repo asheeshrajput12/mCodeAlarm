@@ -30,7 +30,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +58,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -80,11 +83,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import com.asheeshk.myalarm.ui.theme.MyAlarmTheme
 import com.asheeshk.myalarm.ui.theme.Pink10
 import com.asheeshk.myalarm.ui.theme.Pink80
 import com.asheeshk.myalarm.ui.theme.Purple80
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 import kotlin.math.abs
 
 class ActivityAddTask : ComponentActivity() {
@@ -92,11 +97,12 @@ class ActivityAddTask : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            window.decorView.systemUiVisibility = (
+            window.statusBarColor= ContextCompat.getColor(this,R.color.white)
+           /* window.decorView.systemUiVisibility = (
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                             or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                             or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    )
+                    )*/
             MyAlarmTheme {
                 ExerciseAlarmScreen()
                 //ShowBottomSheetModal()
@@ -130,7 +136,7 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(scrollState) // Enable scrolling
-            .padding(top = 40.dp, start = 16.dp, end = 16.dp),
+            .padding(top = 40.dp, bottom = 60.dp, start = 10.dp, end = 10.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Top Action Row
@@ -177,7 +183,8 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
             fontSize = 24.sp,
             textAlign = TextAlign.Start
         )
-        val timeList = (0..23).flatMap { hour ->
+        TimePicker()
+       /* val timeList = (0..23).flatMap { hour ->
             (0..59).map { minute ->
                 Pair(hour, minute)
             }
@@ -224,7 +231,7 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Black
             )
-        }
+        }*/
 
         // Repeat Section
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -311,6 +318,94 @@ fun ExerciseAlarmScreen(userName: String = "Akshay") {
             )
         }
 
+    }
+}
+@Preview(showBackground = true)
+@Composable
+fun TimePicker() {
+    val currentTime = LocalTime.now()
+
+    val hours = (0..23).map { it.toString().padStart(2, '0') }
+    val minutes = (0..59).map { it.toString().padStart(2, '0') }
+
+    val initialHourIndex = currentTime.hour
+    val initialMinuteIndex = currentTime.minute
+
+    val hourListState = rememberLazyListState(initialHourIndex)
+    val minuteListState = rememberLazyListState(initialMinuteIndex)
+
+    var selectedHour by remember { mutableStateOf(hours[initialHourIndex]) }
+    var selectedMinute by remember { mutableStateOf(minutes[initialMinuteIndex]) }
+    Box(
+        modifier = Modifier.size(width = 200.dp, height = 200.dp)
+            .background(Color.White, shape = RoundedCornerShape(16.dp))
+            .padding(8.dp)
+    ) {
+        Row(
+            modifier = Modifier.size(height = 150.dp, width = 700.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Hour Column
+            // Hour Picker
+            NumberPicker(
+                numbers = hours,
+                selectedNumber = selectedHour,
+                onNumberSelected = { selectedHour = it },
+                listState = hourListState
+            )
+
+            // Minute Picker
+            NumberPicker(
+                numbers = minutes,
+                selectedNumber = selectedMinute,
+                onNumberSelected = { selectedMinute = it },
+                listState = minuteListState
+            )
+        }
+    }
+}
+
+@Composable
+fun NumberPicker(
+    numbers: List<String>,
+    selectedNumber: String,
+    onNumberSelected: (String) -> Unit,
+    listState: LazyListState
+) {
+    val coroutineScope = rememberCoroutineScope()
+    LazyColumn(
+        modifier = Modifier.width(80.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        items(numbers) { number ->
+            val isSelected = number == selectedNumber
+            Text(
+                text = number,
+                style = TextStyle(
+                    color = if (isSelected) Color.White else Color.Gray,
+                    fontSize = 50.sp,
+                    fontWeight = FontWeight.W900,
+                    fontFamily = FontFamily.Default
+                ),
+                modifier = Modifier
+                    .padding(vertical = 4.dp)
+                    .background(
+                        color = if (isSelected) Color.Gray else Color.Transparent,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(8.dp)
+            )
+        }
+    }
+    LaunchedEffect(selectedNumber) {
+        coroutineScope.launch {
+            // Scroll to the selected item
+            val index = numbers.indexOf(selectedNumber)
+            if (index >= 0) {
+                listState.animateScrollToItem(index)
+            }
+        }
     }
 }
 fun getAlarmRingtones(context: Context): List<Pair<String, Uri>> {
